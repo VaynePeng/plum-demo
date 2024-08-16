@@ -21,7 +21,7 @@ interface Line {
   angle: number
 }
 
-const pendingTasks: Array<Function> = []
+let pendingTasks: Array<Function> = []
 
 const lineTo = (startPoint: Point, endPoint: Point) => {
   ctx.value.beginPath()
@@ -50,31 +50,53 @@ const step = (line: Line, deep = 0) => {
   if (Math.random() > 0.5 || deep < 2) {
     // 绘制左侧分支
     pendingTasks.push(() => {
-      step({
-        start: endPoint,
-        length: line.length + (Math.random() * 10 - 10),
-        angle: line.angle - 0.3 * Math.random()
-      }, deep + 1)
+      step(
+        {
+          start: endPoint,
+          length: line.length + (Math.random() * 10 - 10),
+          angle: line.angle - 0.3 * Math.random()
+        },
+        deep + 1
+      )
     })
   }
 
   if (Math.random() > 0.5 || deep < 2) {
     // 绘制右侧分支
     pendingTasks.push(() => {
-      step({
-        start: endPoint,
-        length: line.length + (Math.random() * 10 - 10),
-        angle: line.angle + 0.3 * Math.random()
-      }, deep + 1)
+      step(
+        {
+          start: endPoint,
+          length: line.length + (Math.random() * 10 - 10),
+          angle: line.angle + 0.3 * Math.random()
+        },
+        deep + 1
+      )
     })
   }
 }
 
 const frame = () => {
-  if (pendingTasks.length > 0) {
-    pendingTasks.shift()?.()
-    setTimeout(() => requestAnimationFrame(frame), 60)
-  }
+  const tasks: Function[] = []
+  pendingTasks = pendingTasks.filter((i) => {
+    if (Math.random() > 0.4) {
+      tasks.push(i)
+      return false
+    }
+    return true
+  })
+  tasks.forEach((fn) => fn())
+}
+
+let framesCount = 0
+function startFrame() {
+  requestAnimationFrame(() => {
+    framesCount += 1
+    if (framesCount % 3 === 0) {
+      frame()
+    }
+    startFrame()
+  })
 }
 
 const init = () => {
@@ -85,7 +107,8 @@ const init = () => {
     angle: -Math.PI / 2
   }
   step(line)
-  frame()
+  console.log('pendingTasks', pendingTasks)
+  startFrame()
 }
 
 onMounted(() => {
