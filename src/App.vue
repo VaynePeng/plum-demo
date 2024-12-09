@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
+import reactSvg from '../demo/src/assets/react.svg'
 
 const canvasRef = ref<HTMLCanvasElement | null>(null)
 
@@ -124,5 +125,6 @@ onMounted(() => {
 <template>
   <div>
     <canvas ref="canvasRef" border border-solid w-500px h-500px />
+    <img :src='reactSvg' alt="react" />
   </div>
 </template>
